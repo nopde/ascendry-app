@@ -9,7 +9,7 @@
     "build": {
         "appId": "ascendry",
         "productName": "Ascendry",
-        "icon": "./assets/icon_white.ico",
+        "icon": "./assets/icon.ico",
         "win": {
             "artifactName": "AscendrySetup.exe",
             "target": "nsis-web"
