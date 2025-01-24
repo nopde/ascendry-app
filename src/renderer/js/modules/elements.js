@@ -441,6 +441,8 @@ class ReimaginedButton extends ReimaginedElement {
                 ${this.buttonBody}
             </button>
         `;
+
+        this.button = this.shadowRoot.querySelector("button");
     }
 
     setupEventListeners() {
@@ -449,6 +451,10 @@ class ReimaginedButton extends ReimaginedElement {
                 this.dispatchEvent(new CustomEvent("button-click", { bubbles: true }));
             }
         });
+    }
+
+    focus() {
+        this.button.focus();
     }
 }
 

@@ -264,6 +264,11 @@ class Modal extends HTMLElement {
                 this.dispatchEvent(new CustomEvent("cancel-button-click"));
                 this.closeModal();
             });
+
+            cancelButton.focus();
+        }
+        else {
+            confirmButton.focus();
         }
 
         confirmButton.addEventListener("click", () => {
