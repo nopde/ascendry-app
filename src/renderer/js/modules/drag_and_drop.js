@@ -113,7 +113,6 @@ class DragAndDrop {
             }
         }).filter(Boolean);
 
-
         window.electronAPI.saveShortcuts(updatedShortcuts);
     }
 

@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const config = require("./config");
+const Shortcut = require("./models/Shortcut");
 const ShortcutManager = require("./managers/ShortcutManager");
 const TrayManager = require("./managers/TrayManager");
 
@@ -31,6 +32,7 @@ function setupIPC() {
         shortcutManager.edit(name, new Shortcut(editedShortcut.name, editedShortcut.key, editedShortcut.action, editedShortcut.position))
     );
     ipcMain.handle("is-shortcut-name-available", (event, name) => shortcutManager.isNameAvailable(name));
+    ipcMain.handle("save-shortcuts", (event, shortcuts) => shortcutManager.save(shortcuts));
     ipcMain.handle("minimize", () => BrowserWindow.getFocusedWindow().minimize());
     ipcMain.handle("maximize", () => BrowserWindow.getFocusedWindow().isMaximized() ? BrowserWindow.getFocusedWindow().unmaximize() : BrowserWindow.getFocusedWindow().maximize());
     ipcMain.handle("quit", () => mainWindow.hide());

@@ -354,7 +354,8 @@ class ReimaginedButton extends ReimaginedElement {
 
                     --border-color: rgba(var(--tertiary-color, white), .25);
 
-                    flex: 1 1;
+                    width: 100%;
+                    height: 100%;
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;

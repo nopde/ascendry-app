@@ -27,8 +27,11 @@ class ShortcutManager {
         }
     }
 
-    save() {
-        fs.writeFileSync(this.filePath, JSON.stringify(this.shortcuts.map((s) => s.toJSON()), null, 4));
+    save(shortcuts) {
+        if (!shortcuts) {
+            shortcuts = this.shortcuts.map((s) => s.toJSON());
+        }
+        fs.writeFileSync(this.filePath, JSON.stringify(shortcuts, null, 4));
     }
 
     add(shortcut) {
