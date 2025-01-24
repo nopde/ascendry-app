@@ -24,7 +24,7 @@ class ShortcutKeyBinder {
         const formattedKeys = Array.from(this.pressedKeys)
             .map(k => this.formatKeyName(k))
             .join(" + ");
-        
+
         this.input.setValue(formattedKeys);
     }
 
@@ -76,7 +76,7 @@ class ShortcutKeyBinder {
         window.removeEventListener("keydown", this.boundKeyHandler);
         this.currentShortcut = Array.from(this.pressedKeys).join("+");
         this.input.inputElement.disabled = false;
-        
+
         this.updateInputDisplay();
         this.pressedKeys.clear();
     }
@@ -98,9 +98,9 @@ class ShortcutKeyBinder {
         const modifiers = uniqueKeys.filter(k => MODIFIERS.has(k));
         const regularKeys = uniqueKeys.filter(k => !MODIFIERS.has(k));
 
-        return modifiers.length >= 1 && 
-               regularKeys.length >= 1 &&
-               regularKeys.every(k => ALLOWED_KEYS.has(k));
+        return modifiers.length >= 1 &&
+            regularKeys.length >= 1 &&
+            regularKeys.every(k => ALLOWED_KEYS.has(k));
     }
 }
 
@@ -278,33 +278,30 @@ class Modal extends HTMLElement {
     }
 
     setupFocusTrapping() {
-        const focusableElements = this.getFocusableElements();
-        if (focusableElements.length > 0) {
-            focusableElements[0].focus();
-        }
+        const elements = Array.from(document.body.querySelectorAll("*")).map(el => ({ element: el, tabindex: el.getAttribute("tabindex") }));
+        const focusableElements = elements.filter(el => el.offsetParent !== null);
 
-        this.addEventListener("keydown", (event) => {
-            if (event.key === "Tab") {
-                const focusableElements = this.getFocusableElements();
-                const firstElement = focusableElements[0];
-                const lastElement = focusableElements[focusableElements.length - 1];
+        if (focusableElements.length === 0) return;
+        focusableElements[0].element.focus();
 
-                if (event.shiftKey && document.activeElement === firstElement) {
-                    lastElement.focus();
-                    event.preventDefault();
-                } else if (!event.shiftKey && document.activeElement === lastElement) {
-                    firstElement.focus();
-                    event.preventDefault();
-                }
+        elements.forEach(el => {
+            if (el.element === this) {
+                return;
             }
-        });
-    }
 
-    getFocusableElements() {
-        const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-        return Array.from(this.shadowRoot.querySelectorAll(focusableSelectors)).filter(
-            (el) => !el.disabled && el.offsetParent !== null
-        );
+            el.element.setAttribute("tabindex", "-1");
+        });
+
+        this.addEventListener("ready-to-close", () => {
+            elements.forEach(el => {
+                if (!el.tabindex) {
+                    el.element.removeAttribute("tabindex");
+                    return;
+                }
+
+                el.element.setAttribute("tabindex", el.tabindex);
+            });
+        });
     }
 
     closeModal() {
