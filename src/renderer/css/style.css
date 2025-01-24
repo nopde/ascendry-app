@@ -1,0 +1,248 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Open Sans", sans-serif;
+    font-weight: 500;
+    box-sizing: content-box;
+    user-select: none;
+}
+
+:root {
+    --accent-color: 255, 200, 100;
+    --secondary-color: 255, 225, 150;
+    --tertiary-color: 255, 255, 225;
+}
+
+body {
+    color-scheme: dark;
+    overflow: hidden;
+    background-color: rgb(30, 30, 30);
+    color: rgb(var(--tertiary-color));
+}
+
+.app {
+    height: 100dvh;
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+}
+
+.app .titlebar {
+    position: relative;
+    z-index: 2;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgb(var(--accent-color));
+    -webkit-app-region: drag;
+}
+
+.app .titlebar .title {
+    font-size: 16px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.app .titlebar .title .text {
+    background-color: black;
+    width: 100px;
+    height: 20px;
+    mask: url("../assets/images/full.svg") no-repeat center / contain;
+}
+
+.app .titlebar .controls {
+    display: flex;
+    gap: 1px;
+}
+
+.app .titlebar .controls button {
+    width: 40px;
+    height: 35px;
+    background-color: transparent;
+    outline: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 100;
+    color: black;
+    -webkit-app-region: no-drag;
+    transition: all 67ms linear;
+}
+
+.app .titlebar .controls button:hover {
+    background-color: rgba(0, 0, 0, .1);
+}
+
+.app .titlebar .controls button:active {
+    background-color: rgba(0, 0, 0, .2);
+    transition: none;
+}
+
+.app .titlebar .controls button[red]:hover,
+.app .titlebar .controls button[red]:active {
+    background-color: rgb(255, 0, 0);
+    color: white;
+}
+
+.app .titlebar .controls button[disabled] {
+    background-color: transparent;
+    color: rgb(50, 50, 50);
+}
+
+.app {
+    flex: 1 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.app .tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: rgb(20, 20, 20);
+    border-bottom: 1px solid rgb(80, 80, 80);
+}
+
+.app .shortcuts {
+    flex: 1 1;
+    padding: 10px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.app .shortcuts .shortcut {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: rgb(20, 20, 20);
+}
+
+.app .shortcuts .shortcut .shortcut-name {
+    font-size: 14px;
+    color: rgb(var(--tertiary-color));
+    white-space: nowrap;
+}
+
+.app .shortcuts .shortcut .shortcut-hotkey {
+    font-size: 14px;
+    color: rgb(150, 150, 150);
+    white-space: nowrap;
+}
+
+.app .shortcuts .shortcut .shortcut-action {
+    font-size: 14px;
+    color: rgb(150, 150, 150);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: text;
+}
+
+.app .shortcuts .shortcut .shortcut-separator::before {
+    content: "/";
+    width: 1px;
+    height: 100%;
+    color: rgb(80, 80, 80);
+}
+
+.app .shortcuts .shortcut .shortcut-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.app .shortcuts .shortcut .shortcut-controls button {
+    position: relative;
+    width: max-content;
+    height: max-content;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    font-size: 14px;
+    color: rgb(150, 150, 150);
+    cursor: pointer;
+    transition: all .25s cubic-bezier(0, .8, .2, 1);
+}
+
+.app .shortcuts .shortcut .shortcut-controls button:hover {
+    color: rgb(var(--tertiary-color));
+}
+
+.app .shortcuts .shortcut .shortcut-controls button:active {
+    color: rgb(var(--tertiary-color));
+    background-color: rgb(50, 50, 50);
+}
+
+.app .shortcuts .shortcut .shortcut-controls button::before {
+    content: "";
+    position: absolute;
+    top: calc(100% + 1px);
+    width: 100%;
+    height: 1px;
+    background-color: rgb(var(--secondary-color));
+    opacity: 0;
+    transition: all .25s cubic-bezier(0, .8, .2, 1);
+}
+
+.app .shortcuts .shortcut .shortcut-controls button:active::before,
+.app .shortcuts .shortcut .shortcut-controls button:hover::before {
+    opacity: 1;
+}
+
+[draggable="true"].dragging {
+    opacity: 0.5;
+}
+
+.placeholder {
+    border: 1px solid rgba(var(--tertiary-color), .75);
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(var(--tertiary-color), .25);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#notification-container {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    align-items: end;
+    flex-direction: column-reverse;
+}
+
+.notification {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: rgb(20, 20, 20);
+    color: rgb(var(--tertiary-color));
+    font-size: 14px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+    width: max-content;
+    min-height: 0;
+    margin-top: 10px;
+    overflow: hidden;
+    transition: all .25s cubic-bezier(0, .8, .2, 1);
+}
+
+.notification.hide {
+    opacity: 0;
+    height: 0;
+    min-height: 0;
+    margin-top: 0;
+    padding-block: 0;
+}
