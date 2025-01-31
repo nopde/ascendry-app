@@ -122,9 +122,24 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 15px;
+    padding-right: 15px;
+    height: 40px;
     border-radius: 5px;
     background-color: rgb(20, 20, 20);
+    overflow: hidden;
+}
+
+.app .shortcuts .shortcut .drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 100%;
+    padding-inline: 10px;
+    margin-right: 5px;
+    color: rgb(var(--secondary-color));
+    cursor: pointer;
+    background-color: rgba(var(--secondary-color), .1);
 }
 
 .app .shortcuts .shortcut .shortcut-name {
@@ -201,18 +216,6 @@ body {
     opacity: 1;
 }
 
-[draggable="true"].dragging {
-    opacity: 0.5;
-}
-
-.placeholder {
-    border: 1px solid rgba(var(--tertiary-color), .75);
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(var(--tertiary-color), .25);
-    width: 100%;
-    box-sizing: border-box;
-}
-
 #notification-container {
     position: fixed;
     bottom: 10px;
@@ -245,4 +248,8 @@ body {
     min-height: 0;
     margin-top: 0;
     padding-block: 0;
+}
+
+.dragging {
+    opacity: 0.5;
 }

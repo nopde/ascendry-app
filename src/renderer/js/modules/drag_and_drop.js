@@ -1,132 +1,123 @@
 class DragAndDrop {
-    constructor(containerId) {
-        this.container = document.getElementById(containerId);
-        if (!this.container) {
-            throw new Error("Container element not found");
-        }
+    constructor(container, options = {}) {
+        this.container = container;
+        this.options = {
+            draggableSelector: ".draggable",
+            handleSelector: ".drag-handle",
+            draggedClass: "dragging",
+            ...options
+        };
 
-        this.placeholder = document.createElement("div");
-        this.placeholder.className = "placeholder";
-        this.placeholder.style.height = "0px";
+        this.draggedElement = null;
+        this.initialY = 0;
+        this.initialScroll = 0;
 
-        this.initDragAndDrop();
+        this.boundHandleMouseDown = this.handleMouseDown.bind(this);
+        this.boundHandleMouseMove = this.handleMouseMove.bind(this);
+        this.boundHandleMouseUp = this.handleMouseUp.bind(this);
+
+        this.init();
     }
 
-    initDragAndDrop() {
-        this.container.addEventListener("dragstart", this.onDragStart.bind(this));
-        this.container.addEventListener("dragover", this.onDragOver.bind(this));
-        this.container.addEventListener("drop", this.onDrop.bind(this));
-        this.container.addEventListener("dragend", this.onDragEnd.bind(this));
-
-        this.loadPositions();
+    init() {
+        this.container.addEventListener("mousedown", this.boundHandleMouseDown);
     }
 
-    onDragStart(event) {
-        const target = event.target;
-        if (target.getAttribute("draggable") === "true") {
-            target.classList.add("dragging");
-            event.dataTransfer.setData("text/plain", target.dataset.id);
+    handleMouseDown(e) {
+        const handle = e.target.closest(this.options.handleSelector);
+        if (!handle) return;
 
-            this.placeholder.style.height = `${target.offsetHeight}px`;
-        }
+        const draggable = handle.closest(this.options.draggableSelector);
+        if (!draggable) return;
+
+        e.preventDefault();
+
+        this.draggedElement = draggable;
+        this.initialY = e.clientY;
+        this.initialScroll = this.container.scrollTop;
+
+        this.draggedElement.classList.add(this.options.draggedClass);
+
+        document.addEventListener("mousemove", this.boundHandleMouseMove);
+        document.addEventListener("mouseup", this.boundHandleMouseUp);
     }
 
-    onDragOver(event) {
-        event.preventDefault();
+    handleMouseMove(e) {
+        if (!this.draggedElement) return;
 
-        const dragging = this.container.querySelector(".dragging");
-        if (dragging) {
-            const afterElement = this.getDragAfterElement(event.clientY);
+        const y = e.clientY;
+        const targetElement = this.findDropTarget(y);
 
-            if (afterElement == null) {
-                if (!this.container.contains(this.placeholder)) {
-                    this.container.appendChild(this.placeholder);
-                } else if (this.container.lastElementChild !== this.placeholder) {
-                    this.container.appendChild(this.placeholder);
-                }
+        if (targetElement) {
+            const box = targetElement.getBoundingClientRect();
+            const dropPosition = y < box.top + box.height / 2 ? "before" : "after";
+
+            if (dropPosition === "before") {
+                this.container.insertBefore(this.draggedElement, targetElement);
             } else {
-                if (afterElement !== this.placeholder) {
-                    this.container.insertBefore(this.placeholder, afterElement);
-                }
+                this.container.insertBefore(this.draggedElement, targetElement.nextSibling);
             }
         }
     }
 
-    onDrop(event) {
-        event.preventDefault();
-        const dragging = this.container.querySelector(".dragging");
-        if (dragging) {
-            this.container.insertBefore(dragging, this.placeholder);
-            this.placeholder.remove();
+    handleMouseUp() {
+        if (!this.draggedElement) return;
 
-            this.savePositions();
-        }
-    }
+        this.draggedElement.classList.remove(this.options.draggedClass);
+        this.draggedElement = null;
 
-    onDragEnd(event) {
-        const target = event.target;
-        if (target.classList.contains("dragging")) {
-            target.classList.remove("dragging");
-        }
-        this.placeholder.remove();
+        document.removeEventListener("mousemove", this.boundHandleMouseMove);
+        document.removeEventListener("mouseup", this.boundHandleMouseUp);
 
         this.savePositions();
     }
 
-    getDragAfterElement(y) {
-        const elements = [...this.container.querySelectorAll("[draggable='true']:not(.dragging)")];
+    findDropTarget(y) {
+        const elements = Array.from(this.container.querySelectorAll(
+            `${this.options.draggableSelector}:not(.${this.options.draggedClass})`
+        ));
 
-        let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
-        for (const child of elements) {
-            const box = child.getBoundingClientRect();
-            const offset = y - (box.top + box.height / 2);
+        let closestElement = null;
+        let minDistance = Infinity;
 
-            if (offset < 0 && offset > closest.offset) {
-                closest = { offset, element: child };
+        for (const element of elements) {
+            const box = element.getBoundingClientRect();
+            const distance = Math.abs(y - (box.top + box.height / 2));
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestElement = element;
             }
         }
 
-        const lastElement = elements[elements.length - 1];
-        if (lastElement) {
-            const lastBox = lastElement.getBoundingClientRect();
-            if (y > lastBox.bottom) {
-                return null;
-            }
-        }
-
-        return closest.element;
+        return closestElement;
     }
 
     async savePositions() {
-        const shortcuts = await window.electronAPI.getShortcuts();
-        const shortcutsElements = Array.from(this.container.querySelectorAll(".shortcut"));
+        try {
+            const shortcuts = await window.electronAPI.getShortcuts();
+            const shortcutElements = Array.from(
+                this.container.querySelectorAll(this.options.draggableSelector)
+            );
 
-        const updatedShortcuts = shortcutsElements.map((element, index) => {
-            const shortcutName = element.getAttribute("data-name");
-            const shortcut = shortcuts.find((s) => s.name === shortcutName);
+            const updatedShortcuts = shortcutElements
+                .map((element, index) => {
+                    const shortcutName = element.getAttribute("data-name");
+                    const shortcut = shortcuts.find(s => s.name === shortcutName);
+                    return shortcut ? { ...shortcut, position: index } : null;
+                })
+                .filter(Boolean);
 
-            if (shortcut) {
-                return {
-                    ...shortcut,
-                    position: index,
-                };
-            }
-        }).filter(Boolean);
-
-        window.electronAPI.saveShortcuts(updatedShortcuts);
+            await window.electronAPI.saveShortcuts(updatedShortcuts);
+        } catch (error) {
+            console.error("Error saving positions:", error);
+        }
     }
 
-    loadPositions() {
-        const savedPositions = localStorage.getItem("dragAndDropPositions");
-        if (savedPositions) {
-            const ids = JSON.parse(savedPositions);
-            const elements = ids.map(id => this.container.querySelector(`[data-id='${id}']`));
-            elements.forEach(el => {
-                if (el) {
-                    this.container.appendChild(el);
-                }
-            });
-        }
+    destroy() {
+        this.container.removeEventListener("mousedown", this.boundHandleMouseDown);
+        document.removeEventListener("mousemove", this.boundHandleMouseMove);
+        document.removeEventListener("mouseup", this.boundHandleMouseUp);
     }
 }
 

@@ -26,4 +26,4 @@ quit.addEventListener("click", async () => {
 });
 
 getShortcuts();
-new DragAndDrop("shortcuts");
+new DragAndDrop(document.getElementById("shortcuts"));

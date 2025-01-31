@@ -66,6 +66,7 @@ class ShortcutManager {
     }
 
     getAll() {
+        this.load();
         return this.shortcuts.map((s) => s.toJSON());
     }
 

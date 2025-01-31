@@ -32,9 +32,12 @@ function renderShortcuts(shortcuts) {
     for (const shortcut of shortcuts) {
         const shortcutElement = document.createElement("div");
         shortcutElement.classList.add("shortcut");
-        shortcutElement.setAttribute("draggable", "true");
+        shortcutElement.classList.add("draggable");
         shortcutElement.setAttribute("data-name", shortcut.name);
         shortcutElement.innerHTML = `
+            <div class="drag-handle">
+                <span class="icons">⋮⋮</span>
+            </div>
             <div class="shortcut-name">${shortcut.name}</div>
             <div class="shortcut-separator"></div>
             <div class="shortcut-hotkey">${shortcut.key}</div>
